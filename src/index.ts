@@ -9,3 +9,5 @@ app.use("/api/v1/order", OrderRouter);
 app.use("/api/v1/user", UserRouter);
 
 app.listen(port);
+
+export default app;
