@@ -6,6 +6,6 @@ const port = 3000;
 
 app.use(express.json());
 app.use("/api/v1/order", OrderRouter);
-app.use("/user/v1/user", UserRouter);
+app.use("/api/v1/user", UserRouter);
 
 app.listen(port);

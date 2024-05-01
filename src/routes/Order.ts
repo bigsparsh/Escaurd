@@ -2,10 +2,12 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { OrderCreate } from "../types/Order";
+import AuthMiddleware from "../middleware/auth";
 
 const app = express();
 const prisma = new PrismaClient();
 
+app.use(AuthMiddleware);
 app.get("/get", async (_, res) => {
   res.json({
     orders: await prisma.order.findMany(),

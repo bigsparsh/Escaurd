@@ -1,9 +1,11 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
+import AuthMiddleware from "../middleware/auth";
 
 const app = express();
 const prisma = new PrismaClient();
 
+app.use(AuthMiddleware);
 app.get("/get", async (_, res) => {
   res.json({
     users: await prisma.user.findMany(),
