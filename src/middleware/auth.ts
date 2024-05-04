@@ -6,13 +6,16 @@ const AuthMiddleware = (
   res: express.Response,
   next: express.NextFunction,
 ) => {
+  const authHeader = req.headers.authorization;
   try {
-    jwt.verify(req.query.jwt as string, process.env.JWT_SECRET as Secret);
+    jwt.verify(authHeader as string, process.env.JWT_SECRET as Secret);
     next();
+    return;
   } catch (err) {
     res.status(401).json({
       message: "Unauthorized Access to the API",
     });
+    return;
   }
 };
 export default AuthMiddleware;

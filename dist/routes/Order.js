@@ -19,14 +19,23 @@ const auth_1 = __importDefault(require("../middleware/auth"));
 const app = (0, express_1.default)();
 const prisma = new client_1.PrismaClient();
 app.use(auth_1.default);
-app.get("/get", (_, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json({
-        orders: yield prisma.order.findMany(),
+app.get("/get", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = jsonwebtoken_1.default.decode(req.headers.authorization);
+    console.log("user: " + user);
+    const orders = yield prisma.order.findMany({
+        where: {
+            user_id: user.id,
+        },
     });
+    if (orders.length) {
+        res.json({ message: "Orders Found", orders });
+        return;
+    }
+    res.json({ message: "Orders Not Found" });
 }));
 app.post("/create", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = yield req.body;
-    const user = jsonwebtoken_1.default.decode(req.query.jwt);
+    const user = jsonwebtoken_1.default.decode(req.headers.authorization);
     const newOrder = yield prisma.order.create({
         data: {
             user_id: user.id,

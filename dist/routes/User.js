@@ -15,24 +15,46 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
 const auth_1 = __importDefault(require("../middleware/auth"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const app = (0, express_1.default)();
 const prisma = new client_1.PrismaClient();
 app.use(auth_1.default);
-app.get("/get", (_, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json({
-        users: yield prisma.user.findMany(),
+app.get("/get", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = jsonwebtoken_1.default.decode(req.headers.authorization);
+    const user = yield prisma.user.findUnique({
+        where: {
+            user_id: userId.id,
+        },
     });
+    if (user) {
+        res.json({ message: "User Found", user });
+        return;
+    }
+    res.json({ message: "User Not Found" });
 }));
-app.post("/create", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = yield req.body;
+    const checkUser = yield prisma.user.findUnique({
+        where: {
+            phone: body.phone,
+        },
+    });
+    if (checkUser) {
+        res.json({
+            message: "User Logged In Successfully",
+            jwt: jsonwebtoken_1.default.sign({ id: checkUser.user_id }, process.env.JWT_SECRET),
+            user: checkUser,
+        });
+        return;
+    }
     const newUser = yield prisma.user.create({
         data: {
             phone: body.phone,
         },
     });
     res.json({
-        message: "User created successfully",
-        user: newUser,
+        message: "New User Created Successfully",
+        jwt: jsonwebtoken_1.default.sign({ id: newUser.user_id }, process.env.JWT_SECRET),
     });
 }));
 exports.default = app;

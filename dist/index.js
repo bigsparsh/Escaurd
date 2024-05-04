@@ -12,3 +12,4 @@ app.use(express_1.default.json());
 app.use("/api/v1/order", Order_1.default);
 app.use("/api/v1/user", User_1.default);
 app.listen(port);
+exports.default = app;
